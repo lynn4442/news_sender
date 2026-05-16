@@ -1,0 +1,130 @@
+DAILY NEWS NEWSLETTER — LEARNING ROADMAP
+=========================================
+
+Goal: A Python script that runs every morning at 10am Beirut time (UTC+3),
+fetches tech and Lebanon geopolitical news from Google News RSS,
+formats it into headlines + short summaries, and emails it to your Gmail.
+
+Stack: Python, GitHub Actions (free scheduling, no server needed)
+
+
+STAGE 1 — FETCHING DATA FROM THE WEB
+--------------------------------------
+Concepts to learn:
+  - What HTTP requests are and how they work
+  - The `requests` library: how to GET a URL and read the response
+  - What RSS is (a structured XML news feed format)
+  - The `feedparser` library: how to parse an RSS feed into Python objects
+
+Goal:
+  Write a script that fetches the Google News RSS feed for "Lebanon"
+  and prints each headline and its summary to the terminal.
+
+Libraries to install:
+  pip install requests feedparser
+
+Key thing to understand:
+  Google News RSS URL format:
+  https://news.google.com/rss/search?q=YOURQUERY&hl=en-US&gl=US&ceid=US:en
+
+
+STAGE 2 — SHAPING THE DATA
+----------------------------
+Concepts to learn:
+  - Python lists and dicts (how feed items are structured after parsing)
+  - String formatting (f-strings)
+  - How to loop through items and extract only what you need
+
+Goal:
+  Take the raw parsed feed and produce a clean list of dicts,
+  each with a 'title' and 'summary' key. Print them formatted.
+
+Topics to cover:
+  - Lebanon geopolitical news query
+  - Tech / AI news query (e.g. "artificial intelligence OR tech industry")
+  - Combine both lists into one structured output
+
+
+STAGE 3 — SENDING EMAIL FROM PYTHON
+--------------------------------------
+Concepts to learn:
+  - How SMTP works (the protocol email uses to send)
+  - Python's built-in `smtplib` and `email` modules
+  - Gmail App Passwords (required — Google blocks direct password login)
+  - How to build a plain HTML email in Python
+
+Goal:
+  Send yourself a hardcoded test email from a Python script.
+
+Steps:
+  1. Enable 2-Step Verification on your Google account
+  2. Go to: Google Account > Security > App Passwords
+  3. Generate a password for "Mail" on "Other device"
+  4. Use that 16-char password in your script (never your real Gmail password)
+
+Key thing to understand:
+  SMTP server for Gmail: smtp.gmail.com, port 587, with STARTTLS
+
+
+STAGE 4 — PUTTING IT ALL TOGETHER
+------------------------------------
+Goal:
+  One script (main.py) that does all three stages end to end:
+    1. Fetches Lebanon news from Google News RSS
+    2. Fetches tech news from Google News RSS
+    3. Formats both into an HTML email body
+    4. Sends it to your Gmail
+
+Structure your project like this:
+  news/
+  ├── main.py
+  ├── requirements.txt   (list of pip packages)
+  └── .env               (your Gmail + App Password — never commit this)
+
+Learn about python-dotenv to load secrets from .env safely.
+  pip install python-dotenv
+
+
+STAGE 5 — SCHEDULING WITH GITHUB ACTIONS
+------------------------------------------
+Concepts to learn:
+  - What GitHub Actions is (automated workflows triggered by events)
+  - YAML syntax (the format Actions config files use)
+  - Cron syntax for scheduling (e.g. "0 7 * * *" = 7am UTC daily)
+  - GitHub Secrets (where you store your Gmail credentials safely)
+
+Goal:
+  A .github/workflows/newsletter.yml file that:
+    - Runs every day at 07:00 UTC (= 10:00 Beirut time, UTC+3)
+    - Installs Python and your dependencies
+    - Runs main.py using secrets stored in GitHub
+
+Cron for 10am Beirut (UTC+3): 0 7 * * *
+
+Note on free tier:
+  GitHub Actions gives 2000 free minutes/month.
+  This script will use under 2 minutes per run.
+  30 days x 2 min = 60 minutes/month. Completely free.
+
+
+NEWS SOURCES
+-------------
+Both categories pull from Google News RSS with targeted search queries.
+Google News aggregates from the outlets you care about automatically.
+
+Geopolitical — Lebanon focused:
+  Sources aggregated include: L'Orient Today, Daraj, OCCRP, Carnegie MEC, Legal Agenda
+  Query to use: "Lebanon politics OR Lebanon economy OR Lebanon crisis"
+
+Tech — Daily updates:
+  Sources aggregated include: major tech outlets, The Rundown AI coverage
+  Query to use: "artificial intelligence OR tech industry OR startup"
+
+
+ORDER OF WORK
+--------------
+1. Stage 1 — get data in
+2. Stage 3 — get email out (do this early so you can test with real output)
+3. Stage 2 — clean the data between 1 and 3
+4. Stage 4 — wire it together into main.py
+5. Stage 5 — deploy to GitHub Actions
