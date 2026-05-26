@@ -1,0 +1,91 @@
+ALTERNATIVE NEWS SOURCES (future options)
+==========================================
+
+Current approach: Google News RSS — no API key, no account, no rate limits,
+aggregates from all target sources automatically.
+
+Alternatives if Google News RSS becomes insufficient:
+
+1. NewsAPI (newsapi.org)
+   - Free tier: 100 requests/day
+   - Returns JSON (cleaner than XML)
+   - Filter by country, language, keyword
+   - Requires API key (free to register)
+   - Lebanon coverage can be thin
+
+2. Direct scraping
+   - Download HTML from sites like L'Orient Today and extract articles
+   - No API key needed
+   - Fragile — breaks when the site redesigns
+   - Some sites actively block scrapers
+
+3. Email newsletter parsing
+   - Subscribe to newsletters (L'Orient Today morning brief, The Rundown AI)
+   - Parse incoming emails programmatically instead of fetching
+   - More complex to set up
+
+4. Mediastack / Currents API
+   - Similar to NewsAPI
+   - Free tiers available
+   - Requires API key
+
+
+---
+
+CONCEPTS LEARNED
+================
+
+## HTTP & requests
+- An HTTP request is what your browser does every time you load a page.
+- requests.get(url) sends a GET request and returns a response object.
+- response.text is the raw content the server sent back.
+- The User-Agent header tells the server what is making the request.
+  Default is "python-requests/x.x" which some servers block.
+  Setting it to a browser string (Mozilla/5.0) gets you through.
+
+## RSS
+- A standardized XML format news sites publish so programs can fetch articles.
+- Alternative to scraping — the site gives you structured data directly.
+- Google News exposes RSS for any search query:
+  https://news.google.com/rss/search?q=QUERY&hl=en-US&gl=US&ceid=US:en
+- Each item in the feed has a title, link, summary, and pubDate.
+
+## feedparser
+- Parses raw RSS/XML into a clean Python object.
+- feed.entries is a list of articles.
+- Each entry has .title, .summary, .link attributes.
+- You can pass it a raw XML string: feedparser.parse(response.text)
+
+## Python data structures
+- A list of dicts is the right structure for a collection of articles.
+- Each dict groups related fields together: {"title": ..., "link": ...}
+- entry.title.rsplit(' - ', 1)[0] strips the source name from the end of a title.
+  rsplit splits from the right, 1 means split once, [0] takes the left part.
+- re.sub(r'<[^>]+>', '', text) strips HTML tags from a string.
+  The pattern matches anything between < and >.
+
+## Environment variables & secrets
+- Never hardcode credentials in your code.
+- Store secrets in a .env file: KEY=value (no spaces, no quotes)
+- Add .env to .gitignore so it never gets committed.
+- python-dotenv: load_dotenv() reads .env into environment variables.
+- os.getenv("KEY") retrieves the value by name.
+- Anyone reading your code on GitHub sees variable names, not your real secrets.
+
+## Email (SMTP)
+- SMTP is the protocol email uses to send messages.
+- Gmail's SMTP server: smtp.gmail.com, port 587
+- You cannot use your real Gmail password programmatically.
+  You must generate an App Password:
+  Google Account > Security > 2-Step Verification > App Passwords
+- MIMEMultipart("alternative") creates the email envelope.
+  "alternative" allows both plain text and HTML versions.
+- server.starttls() upgrades the connection to encrypted TLS.
+  Without it, your password travels over the network in plain text.
+- server.login(EMAIL, APP_PASSWORD) authenticates with Gmail.
+- server.sendmail(from, to, message) sends the email.
+
+## Project technical description
+"A Python script that fetches news from Google News RSS feeds, formats
+the results into an HTML email, and sends it to Gmail via SMTP.
+Runs on a scheduled cron job through GitHub Actions every morning."
