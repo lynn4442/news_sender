@@ -78,6 +78,6 @@ body += "</ul><h2>Tech & AI</h2><ul>"
 for article in articles_tech :
     body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
 
-body += "</ul>"
+body += "</ul>" 
 
 send_email("Your Morning Briefing", body)
