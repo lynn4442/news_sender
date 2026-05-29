@@ -1,5 +1,6 @@
 import smtplib
 import os
+from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -66,18 +67,46 @@ for item in response_tech["articles"]:
 # print(articles_tech)
 
 
-body = "<h2>World & Geopolitics</h2><ul>"
-for article in articles_glob :
-    body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
+today = date.today().strftime("%B %d, %Y")
 
-body += "</ul><h2>Lebanon News</h2><ul>"
-for article in articles_leb :
-    body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
+def render_section(title, color, articles):
+    html = f'''
+    <div style="margin-bottom:32px;">
+        <div style="background:{color};padding:12px 20px;border-radius:6px 6px 0 0;">
+            <h2 style="margin:0;color:#ffffff;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">{title}</h2>
+        </div>
+        <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;overflow:hidden;">
+    '''
+    for i, article in enumerate(articles):
+        bg = "#ffffff" if i % 2 == 0 else "#f8fafc"
+        html += f'''
+            <div style="padding:16px 20px;background:{bg};border-bottom:1px solid #e2e8f0;">
+                <a href="{article["link"]}" style="font-size:15px;font-weight:600;color:#1a202c;text-decoration:none;line-height:1.4;">{article["title"]}</a>
+                <p style="margin:6px 0 0;font-size:13px;color:#718096;line-height:1.5;">{article["description"]}</p>
+            </div>
+        '''
+    html += '</div></div>'
+    return html
 
-body += "</ul><h2>Tech & AI</h2><ul>"
-for article in articles_tech :
-    body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
+body = f'''
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <div style="max-width:640px;margin:0 auto;padding:24px 16px;">
 
-body += "</ul>" 
+        <div style="background:#1a202c;padding:28px 32px;border-radius:8px;margin-bottom:28px;">
+            <h1 style="margin:0 0 4px;color:#ffffff;font-size:22px;font-weight:700;">Morning Briefing</h1>
+            <p style="margin:0;color:#a0aec0;font-size:13px;">{today}</p>
+        </div>
+
+        {render_section("World & Geopolitics", "#2b6cb0", articles_glob)}
+        {render_section("Lebanon", "#c53030", articles_leb)}
+        {render_section("Tech & AI", "#276749", articles_tech)}
+
+        <p style="text-align:center;color:#a0aec0;font-size:12px;margin-top:8px;">Delivered daily at 9am</p>
+    </div>
+</body>
+</html>
+'''
 
 send_email("Your Morning Briefing", body)
