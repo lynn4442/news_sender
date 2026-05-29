@@ -7,10 +7,10 @@ from newsapi import NewsApiClient
 
 load_dotenv()
 # this will read the .env file so python is aware that the env file exists
-email = os.getenv("email")
+email = os.getenv("EMAIL")
 # looks up the env var "email" and return the value as  string
-app_pass = os.getenv("app_pass")
-news_api_key = os.getenv("news_api_key")
+app_pass = os.getenv("APP_PASS")
+news_api_key = os.getenv("NEWS_API_KEY")
 
 newsapi = NewsApiClient(api_key=news_api_key)
 response_glob = newsapi.get_everything(q="geopolitics OR world politics OR international relations", language="en", page_size=8, sort_by="publishedAt")

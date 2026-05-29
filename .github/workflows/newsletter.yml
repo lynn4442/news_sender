@@ -1,0 +1,27 @@
+name: Morning Newsletter
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  # will send at 9am beirut time 
+  workflow_dispatch: 
+  # this will tell github to add a manual trigger in the ui
+
+jobs:
+  send-newsletter:
+    runs-on: ubuntu-latest
+      # machine to run the job
+    steps:
+      - uses: actions/checkout@v4 # this is a builin action in github
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run newsletter
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
+          APP_PASS: ${{ secrets.APP_PASS }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        run: python main.py
