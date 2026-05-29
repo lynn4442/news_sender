@@ -5,15 +5,17 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from newsapi import NewsApiClient
 
-load_dotenv() # this will read the .env file so python is aware that the env file exists
-email = os.getenv("email") # looks up the env var "email" and return the value as  string
+load_dotenv()
+# this will read the .env file so python is aware that the env file exists
+email = os.getenv("email")
+# looks up the env var "email" and return the value as  string
 app_pass = os.getenv("app_pass")
 news_api_key = os.getenv("news_api_key")
 
 newsapi = NewsApiClient(api_key=news_api_key)
-response_pol = newsapi.get_everything(q="Lebanon Middle East", language="en", page_size=8, sort_by="publishedAt")
+response_glob = newsapi.get_everything(q="geopolitics OR world politics OR international relations", language="en", page_size=8, sort_by="publishedAt")
+response_leb = newsapi.get_everything(q="Lebanon OR Hezbollah OR Israeli strikes Lebanon", language="en", page_size=8, sort_by="publishedAt")
 response_tech = newsapi.get_everything(q="technology OR artificial intelligence OR cybersecurity OR software OR startup", language="en", page_size=8, sort_by="publishedAt")
-
 
 def send_email(subject, body) : 
     msg = MIMEMultipart("alternative")
@@ -28,16 +30,28 @@ def send_email(subject, body) :
         server.sendmail(email, email, msg.as_string())
 
 # political_loop
-articles_pol = []
-for item in response_pol["articles"]:
-    articles_pol.append(
+articles_glob = []
+for item in response_glob["articles"]:
+    articles_glob.append(
         {
             "title": item["title"],
             "description": item["description"],
             "link": item["url"]
         }
     ) 
-print(articles_pol)
+# print(articles_glob)
+
+# lebanon_loop
+articles_leb = []
+for item in response_leb["articles"]:
+    articles_leb.append(
+        {
+            "title": item["title"],
+            "description": item["description"],
+            "link": item["url"]
+        }
+    ) 
+# print(articles_leb)
 
 # tech_loop
 articles_tech = []
@@ -49,14 +63,21 @@ for item in response_tech["articles"]:
             "link": item["url"]
         }
     ) 
-print(articles_tech)
+# print(articles_tech)
 
-body = "<h2>Lebanon & Geopolitics</h2><ul>"
-for article in articles_pol :
+
+body = "<h2>World & Geopolitics</h2><ul>"
+for article in articles_glob :
+    body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
+
+body += "</ul><h2>Lebanon News</h2><ul>"
+for article in articles_leb :
     body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
 
 body += "</ul><h2>Tech & AI</h2><ul>"
 for article in articles_tech :
     body += f'<li><a href="{article["link"]}">{article["title"]}</a><br>{article["description"]}</li>'
+
+body += "</ul>" 
 
 send_email("Your Morning Briefing", body)
